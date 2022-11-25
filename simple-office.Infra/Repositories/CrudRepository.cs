@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using simple_office.Domain.Interfaces.Dapper;
+using simple_office.Core.Dapper;
 using simple_office.Domain.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
@@ -67,7 +67,7 @@ namespace simple_office.Infra.Repositories
             try
             {
                 var dynamicParameters = new DynamicParameters();
-                dynamicParameters.Add(_sqlQueryHelper.keyfield, id);
+                dynamicParameters.Add(_sqlQueryHelper.KeyField, id);
                 var result = await connection.QueryAsync<T>(_sqlQueryHelper.SelectById(), dynamicParameters);
                 return result.FirstOrDefault();
             }
