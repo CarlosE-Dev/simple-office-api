@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using simple_office.Domain.Interfaces.Dapper;
+using simple_office.Core.Dapper;
 using simple_office.Domain.Interfaces.Repositories;
 using simple_office.Domain.Models;
-using System.Data;
 
 namespace simple_office.Infra.Repositories
 {

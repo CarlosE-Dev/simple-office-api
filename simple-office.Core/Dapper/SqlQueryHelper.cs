@@ -1,19 +1,28 @@
-﻿using simple_office.Domain.Interfaces.Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
-namespace simple_office.Infra.Dapper
+namespace simple_office.Core.Dapper
 {
+    public interface ISqlQueryHelper<T>
+    {
+        string KeyField { get; }
+        string Insert();
+        string Update(string idField = null, IList<string> columns = null);
+        string Delete(string idField = null);
+        string SelectById(string idField = null, IDictionary<string, string> columns = null);
+        string SelectAll(IDictionary<string, string> columns = null);
+    }
+
     public sealed class SqlQueryHelper<T> : ISqlQueryHelper<T>
     {
         private IDictionary<string, string> _columns;
         private string _tableName;
-        public string keyfield { get; private set; }
+        public string KeyField { get; private set; }
 
         public SqlQueryHelper()
         {
@@ -41,14 +50,14 @@ namespace simple_office.Infra.Dapper
 
                 var key = property.GetCustomAttribute<KeyAttribute>();
                 if (key != null)
-                    keyfield = property.Name;
+                    KeyField = property.Name;
             }
         }
 
         public string Insert()
         {
             StringBuilder builder = new StringBuilder();
-            _columns = _columns.Where(p => p.Value != keyfield).ToDictionary(p => p.Key, p => p.Value);
+            _columns = _columns.Where(p => p.Value != KeyField).ToDictionary(p => p.Key, p => p.Value);
 
             builder.Append(@"INSERT INTO " + _tableName + "  ( ");
             foreach (var item in _columns)
@@ -76,9 +85,9 @@ namespace simple_office.Infra.Dapper
             StringBuilder builder = new StringBuilder();
 
             if (!String.IsNullOrEmpty(idField))
-                keyfield = idField;
+                KeyField = idField;
 
-            builder.Append("DELETE FROM " + _tableName + " WHERE " + keyfield + " = @" + keyfield);
+            builder.Append("DELETE FROM " + _tableName + " WHERE " + KeyField + " = @" + KeyField);
             return builder.ToString();
         }
 
@@ -107,10 +116,10 @@ namespace simple_office.Infra.Dapper
             StringBuilder builder = new StringBuilder();
 
             if (!String.IsNullOrEmpty(idField))
-                keyfield = idField;
+                KeyField = idField;
 
             builder.Append(this.SelectAll(columns));
-            builder.AppendLine(" WHERE " + keyfield + " = @" + keyfield);
+            builder.AppendLine(" WHERE " + KeyField + " = @" + KeyField);
             return builder.ToString();
         }
 
@@ -118,13 +127,13 @@ namespace simple_office.Infra.Dapper
         {
             StringBuilder builder = new StringBuilder();
             if (!String.IsNullOrEmpty(idField))
-                keyfield = idField;
+                KeyField = idField;
 
 
             if (columns != null)
                 _columns = columns.ToDictionary(p => p, p => p);
 
-            _columns = _columns.Where(p => p.Value != keyfield).ToDictionary(p => p.Key, p => p.Value);
+            _columns = _columns.Where(p => p.Value != KeyField).ToDictionary(p => p.Key, p => p.Value);
 
             builder.Append(" UPDATE " + _tableName + " SET ");
             foreach (var item in _columns)
@@ -135,7 +144,7 @@ namespace simple_office.Infra.Dapper
                     builder.AppendLine("," + item.Value + " = @" + item.Value);
 
             }
-            builder.Append(" WHERE " + keyfield + " = @" + keyfield);
+            builder.Append(" WHERE " + KeyField + " = @" + KeyField);
 
             return builder.ToString();
         }

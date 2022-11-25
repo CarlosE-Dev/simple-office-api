@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\simple-office.Core\simple-office.Core.csproj" />
     <ProjectReference Include="..\simple-office.Domain\simple-office.Domain.csproj" />
     <ProjectReference Include="..\simple-office.Shared\simple-office.Shared.csproj" />
   </ItemGroup>
